@@ -20,7 +20,9 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | 6 | `lamp` | 五 · 着力即差（汇聚点） | 灯影成字 → 放手 | 不变 | 舣舟（自动落下） | T3 印变亭中灯 |
 | 7 | `epilogue` | 尾 · 舣舟 | 时光轮盘 → 漫游 → 画卷 | 轮盘自动，取消漫游 | — | 个人长卷 → 汇入众人长卷 |
 
-每幕模块导出 `{ id, title, seal, budget: { visitor, full }, run(ctx), scrollPiece(journey) }`，放在 `src/acts/NN-id.js`。
+每幕模块导出 `{ id, title, seal, budget: { visitor, full }, run(ctx), scrollPiece(journey) }`，放在 `src/acts/NN-id/index.js`，画面函数放同目录 `scene.js`；写好后加入 `src/app.js` 的 `ACTS`。
+`ctx = { cut, journey, mode, fog }`。幕以 `cut.open(title, { bare: true })` 开场（`app.js` 负责）；以 T6 结尾的幕在最后 `await fog.cover('…')`，下一幕开头 `await fog.wipe(cut, …)`。
+参考实现：`src/acts/01-night/`（入画、按住、点选、二选一、支线镜头、重建镜头还原状态、诗成、钤印、印化为日、雾起）。
 
 ## 运行模式与无操作计时
 
@@ -58,11 +60,20 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | `inkCover(x,y) / inkUncover()` | 墨团转场 | |
 | `reveal(i)` | 世界中墨晕揭开第 i 处景 + 故事卡 + 墨点飞入进度 | |
 
-新增原语（如按住护灯、拖放、选择、镜头推拉）必须：
-1. 返回 Promise；
-2. 设置 `Cut.cancel`，并在开头检查 `Cut.skip` 立即完成；
-3. 在完成函数里移除自己注册的所有监听器、清掉定时器；
-4. 提供键盘替代操作。
+已有的交互原语（新幕直接用，签名都是 `fn(cut, opts) → Promise`）：
+
+| 原语 | 文件 | 用途 | 键盘替代 |
+|---|---|---|---|
+| `hold` | `src/cut/hold.js` | 在某点按住，进度到 1 完成（护灯、钤印） | 按住空格 |
+| `taps` | `src/cut/taps.js` | 点选若干目标，`onTap` 返回 true 表示收下（寻景、点墨、施粥） | Tab 切换、Enter 点选 |
+| `choose` | `src/cut/taps.js` | 多选一，返回 id（支线分叉） | 数字键 |
+| `compose` | `src/cut/compose.js` | 三远构图：各层错位，拖回原位（入画） | Enter 逐层吸附 |
+| `fog.wipe` | `src/transitions/fog.js` | T6 拂雾：擦开雾气 | 按住空格 |
+| `say` / `gesture` | `src/cut/cut.js` | 对白、沿箭头划动 | 空格/回车、方向键 |
+
+辅助：`createPoem`（`src/ink/poem.js`，竖排诗句逐列写出）、`fog.cover(text)`（雾起，带一行字）、`loop(fn)`（`src/core/tick.js`，每帧回调，返回 stop）。
+
+新增原语一律用 `src/cut/primitive.js` 的 `primitive(cut, prompt, api => …)` 外壳：监听用 `api.on`、定时器用 `api.every/after`、每帧循环用 `api.stopOnEnd(loop(…))`，返回"立即完成"函数。外壳负责跳过、自动完成、清理和收起对白，不要绕开它手写。新原语也要提供键盘替代操作。
 
 提示语格式：`操作 · 情节`，如"按住 · 护灯"、"松开 · 舣舟"、"按箭头示意向下缓慢划动 · 落笔"。
 
