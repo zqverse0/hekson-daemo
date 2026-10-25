@@ -22,8 +22,12 @@ export function createCut(inkDrop) {
   function skip() { state.skip = true; state.cancel && state.cancel(); }
 
   // 开始一段演出：标题、显示剧情层；首个镜头在墨色遮罩下搭好
-  function open(titleHtml) {
+  // bare: 新幕使用的全屏画面（无上下黑边，标题与跳过浮在画面上）
+  // light: 画面以浅色纸面为主时，标题改用墨色
+  function open(titleHtml, { bare = false, light = false } = {}) {
     $('cutTitle').innerHTML = titleHtml;
+    cutEl.classList.toggle('bare', bare);
+    cutEl.classList.toggle('light', light);
     cutEl.classList.add('on');
     state.skip = false; state.first = true;
   }
@@ -38,6 +42,7 @@ export function createCut(inkDrop) {
   //   bg  静态背景（远山、岸、水、不动的树）——画完就不再改动
   //   mid 动态中景（人物、会动的物件、手势驱动的部分）
   //   fg  静态前景（压在最上面、不再改动的近景）
+  //   layer(cls) 额外建一层，插在 mid 之下：整层平移 / 淡入淡出用（如三远构图的各层、天光）
   // 演出中只改 mid；改 bg / fg 会让带滤镜的背景整层重算
   async function shot(build) {
     const old = state.layer;
@@ -49,7 +54,8 @@ export function createCut(inkDrop) {
     const bg = layer('bg'), mid = layer('mid'), fg = layer('fg');
     shots.appendChild(div);
     state.layer = div;
-    const ctx = build(mid, { bg, fg }) || {};
+    const extra = cls => { const s = layer(cls); div.insertBefore(s, mid); return s; };
+    const ctx = build(mid, { bg, fg, layer: extra }) || {};
     if (state.first) { state.first = false; await inkDrop.uncover(); }
     else { div.style.opacity = 0; void div.offsetWidth; div.style.transition = 'opacity .6s'; div.style.opacity = 1; await sleep(550); }
     return ctx;
@@ -78,10 +84,22 @@ export function createCut(inkDrop) {
     });
   }
 
-  // 镜头坐标（1600×900，xMidYMid slice）→ 屏幕坐标
+  // 镜头坐标（1600×900，xMidYMid slice）↔ 屏幕坐标
   function toScreen(x, y) {
     const k = Math.max(innerWidth / 1600, innerHeight / 900) || 1;
     return { x: (innerWidth - 1600 * k) / 2 + x * k, y: (innerHeight - 900 * k) / 2 + y * k, k };
+  }
+  function toShot(sx, sy) {
+    const k = Math.max(innerWidth / 1600, innerHeight / 900) || 1;
+    return { x: (sx - (innerWidth - 1600 * k) / 2) / k, y: (sy - (innerHeight - 900 * k) / 2) / k, k };
+  }
+  // 收起对白（交互开始、换场时）
+  function hush() { dlg.classList.remove('show'); }
+  function title(html) { $('cutTitle').innerHTML = html; }
+  // 底部操作提示；text 为空时隐藏
+  function prompt(text) {
+    if (text) { gText.textContent = text; gPrompt.classList.add('on'); }
+    else gPrompt.classList.remove('on');
   }
 
   // 沿箭头划动：划动进度 0→1 直接驱动 onProgress(p)。at / len 为镜头坐标（1600×900）
@@ -140,5 +158,5 @@ export function createCut(inkDrop) {
     });
   }
 
-  return { state, sleep, shot, say, gesture, toScreen, open, close, skip };
+  return { state, root: cutEl, gest: gestSvg, sleep, shot, say, gesture, toScreen, toShot, prompt, hush, title, open, close, skip };
 }

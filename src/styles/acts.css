@@ -1,0 +1,24 @@
+/* 新版各幕（body.acts）：全屏画面，无上下黑边；字号按展厅 2–4 米观看距离，随视口高度缩放 */
+body.acts #stage, body.acts #hud, body.acts #card, body.acts #hint, body.acts #ending { display: none; }
+
+#cut.bare { background: #1c1b19; }
+#cut.bare .bar { background: transparent; height: auto; min-height: 0; }
+#cut.bare .bar.top { top: max(1.6vh, env(safe-area-inset-top, 0px)); padding: 0 2.4vh; }
+#cut.bare .bar.bot { bottom: 3vh; }
+#cut.bare #cutTitle { font-size: clamp(20px, 3vh, 44px); color: rgba(239,231,214,.85); text-shadow: 0 0 1.2vh rgba(28,27,25,.8); }
+#cut.bare.light #cutTitle { color: var(--ink); text-shadow: 0 0 1.2vh rgba(247,241,228,.9); }
+#cut.bare #skipBtn { font-size: clamp(13px, 1.5vh, 22px); padding: .4vh 1.4vh; background: rgba(28,27,25,.35); }
+#cut.bare #gPrompt { font-size: clamp(15px, 2.2vh, 34px); padding: .8vh 2.4vh; border-radius: 99px; background: rgba(28,27,25,.55);
+  color: #efe7d6; letter-spacing: .3em; }
+#cut.bare #gPrompt .mouse { display: none; }
+#cut.bare #dlg { bottom: calc(3vh + clamp(15px, 2.2vh, 34px) * 2.6); width: min(90vw, 160vh); }
+#cut.bare #dlg .line { font-size: clamp(18px, 2.6vh, 42px); padding: 1vh 6vh; }
+#cut.bare #dlg .who { font-size: clamp(24px, 3.4vh, 54px); }
+#cut.bare #dlg .note { font-size: clamp(12px, 1.6vh, 24px); }
+
+/* T6 拂雾：在镜头之上、提示与对白之下 */
+#cut .fog { position: absolute; inset: 0; width: 100%; height: 100%; display: none; z-index: 1; pointer-events: none; }
+
+#cut .again { position: absolute; left: 50%; bottom: 14vh; transform: translateX(-50%); z-index: 5;
+  font-family: var(--brush); font-size: clamp(20px, 3vh, 44px); letter-spacing: .3em; padding: 1vh 4vh;
+  border: 2px solid var(--ink); background: rgba(247,241,228,.9); color: var(--ink); cursor: pointer; }
