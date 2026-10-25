@@ -44,9 +44,10 @@ export function createCut(inkDrop) {
   //   fg  静态前景（压在最上面、不再改动的近景）
   //   layer(cls) 额外建一层，插在 mid 之下：整层平移 / 淡入淡出用（如三远构图的各层、天光）
   // 演出中只改 mid；改 bg / fg 会让带滤镜的背景整层重算
-  async function shot(build) {
+  // hard: 硬切（T7），旧镜头直接移除、新镜头直接出现，不做淡入淡出
+  async function shot(build, { hard = false } = {}) {
     const old = state.layer;
-    if (old && !state.first) { old.style.transition = 'opacity .45s'; old.style.opacity = 0; await sleep(450); }
+    if (old && !state.first && !hard) { old.style.transition = 'opacity .45s'; old.style.opacity = 0; await sleep(450); }
     if (old) old.remove();
     const div = document.createElement('div');
     div.className = 'shot';
@@ -57,7 +58,7 @@ export function createCut(inkDrop) {
     const extra = cls => { const s = layer(cls); div.insertBefore(s, mid); return s; };
     const ctx = build(mid, { bg, fg, layer: extra }) || {};
     if (state.first) { state.first = false; await inkDrop.uncover(); }
-    else { div.style.opacity = 0; void div.offsetWidth; div.style.transition = 'opacity .6s'; div.style.opacity = 1; await sleep(550); }
+    else if (!hard) { div.style.opacity = 0; void div.offsetWidth; div.style.transition = 'opacity .6s'; div.style.opacity = 1; await sleep(550); }
     return ctx;
   }
 

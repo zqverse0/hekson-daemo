@@ -15,14 +15,13 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | 1 | `night` | 一 · 孤舟夜泊 | 意象成景 + 墨分五色 | 4 个意象，支线二选一 | 残灯 | T3 印变红日 + T6 拂雾 |
 | 2 | `yixing` | 二 · 宜兴（开放区域） | 临帖 / 种橘 / 登高 / 烹茶，任三 | 只选一处，其余自动小景 | 一虚舟 | T4 表文飞出、诏书飞回 |
 | 3 | `return` | 三 · 归去来兮 | 吟诵节奏 → 船头掉转 | 不变 | 归去来 | T4 诏书展开成长卷 |
-| 4 | `voyage` | 过场 · 万里长卷 | 观看，可停 0–2 驿站 | 最多停一处 | — | T4 海浪变江浪 |
-| 5 | `jinshan` | 四 · 不系之舟 | 立轴登高 + 对镜 → 千人画卷 | 登高自动；听 2 类即触发 | 不系舟 | **T7 硬切** |
-| 6 | `lamp` | 五 · 着力即差（汇聚点） | 灯影成字 → 放手 | 不变 | 舣舟（自动落下） | T3 印变亭中灯 |
-| 7 | `epilogue` | 尾 · 舣舟 | 时光轮盘 → 漫游 → 画卷 | 轮盘自动，取消漫游 | — | 个人长卷 → 汇入众人长卷 |
+| 4 | `ashore` | 肆 · 舣舟（终幕，合并原过场、四、五、尾） | 万里长卷停靠驿站 → 对镜 → 运河听人群 → T7 → 移灯成"舣" → 放手 | 驿站最多一处、听 2 类 | 不系舟（按住）+ 舣舟（自动落下） | T3 印化为舣舟亭中的灯 → "再看一次" |
+
+现行只有四幕（`night yixing return ashore`），`prologue` 尚未制作。原设计的 `voyage jinshan lamp epilogue` 都是 `ashore` 内的段落，不单独成幕。
 
 每幕模块导出 `{ id, title, seal, budget: { visitor, full }, run(ctx), scrollPiece(journey) }`，放在 `src/acts/NN-id/index.js`，画面函数放同目录 `scene.js`；写好后加入 `src/app.js` 的 `ACTS`。
 `ctx = { cut, journey, mode, fog }`。幕以 `cut.open(title, { bare: true })` 开场（`app.js` 负责；画面以浅色纸面为主的幕在模块上加 `light: true`，标题改用墨色）；以 T6 结尾的幕在最后 `await fog.cover('…')`，下一幕开头 `await fog.wipe(cut, …)`。
-参考实现：`src/acts/01-night/`（入画、按住、点选、二选一、支线镜头、重建镜头还原状态、诗成、钤印、印化为日、雾起）；`src/acts/02-yixing/`（承接雾、字化为景、俯瞰图上推近拉远进出地点、每处地点一个 `sites/*.js` 模块 `{ id, name, play, item, draw(bg, mid, { final }), run(ctx) }`、游客版用 `drawAlbum` 把未玩的地点以册页带过、上表、表文飞出飞回）。
+参考实现：`src/acts/04-ashore/`（宽于一屏的长卷层平移、与上一幕结尾画面重合后再推近、T7 硬切 `shot(build, { hard: true })`、暗场中 HTML 遮罩 + 顶层 svg 落印）；`src/acts/01-night/`（入画、按住、点选、二选一、支线镜头、重建镜头还原状态、诗成、钤印、印化为日、雾起）；`src/acts/02-yixing/`（承接雾、字化为景、俯瞰图上推近拉远进出地点、每处地点一个 `sites/*.js` 模块 `{ id, name, play, item, draw(bg, mid, { final }), run(ctx) }`、游客版用 `drawAlbum` 把未玩的地点以册页带过、上表、表文飞出飞回）。
 直接从某幕开始调试时（`#act=yixing`），上一幕留下的雾不存在：承接 T6 的幕要先判断 `fog.covered`，没有就自己 `fog.cover()`。
 
 ## 运行模式与无操作计时
@@ -34,7 +33,7 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 ## 每幕五拍
 
 `① 入画（三远构图）→ ② 主玩法 → ③ 诗成 → ④ 钤印 → ⑤ 化印（T3，进入下一幕）`
-新幕必须套这个节拍。`lamp`（五 · 着力即差）例外：入画自动完成，钤印无刻印步骤。
+新幕必须套这个节拍。`ashore` 是终幕，几段各有一次入画（孙氏馆的入画自动完成），共两方印：「不系舟」按住钤印，「舣舟」无刻印步骤、自己落下。
 
 ## 转场语法（只用这七种）
 
@@ -71,6 +70,7 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | `compose` | `src/cut/compose.js` | 三远构图：各层错位，拖回原位（入画） | Enter 逐层吸附 |
 | `fog.wipe` | `src/transitions/fog.js` | T6 拂雾：擦开雾气 | 按住空格 |
 | `rub` | `src/cut/rub.js` | 在框内来回擦，笔迹画进 `<mask>` 显出被遮的内容（临帖描摹、点茶击拂） | 按住空格 |
+| `chant` | `src/cut/chant.js` | 跟着平仄逐字按：长按为平、轻点为仄（吟诵） | 空格 |
 | `say` / `gesture` | `src/cut/cut.js` | 对白、沿箭头划动 | 空格/回车、方向键 |
 
 辅助：`createPoem`（`src/ink/poem.js`，竖排诗句逐列写出）、`createSeal(parent, text)`（`src/ink/seal.js`，2–3 字竖长朱印）、`glyph`（`src/ink/glyph.js`，书法字体缺字拼合）、`fog.cover(text)`（雾起，带一行字）、`loop(fn)`（`src/core/tick.js`，每帧回调，返回 stop）。
@@ -101,4 +101,4 @@ const journey = {
 
 ## 调试
 
-用段落 id 跳转并预设状态：`#act=lamp&mode=visitor&heart=bamboo&night=porridge&mood=longing`。段落 id：`prologue night yixing return voyage jinshan lamp epilogue`（序号 0–7）。v3 的 `#ep1`–`#ep3` 已废弃。
+用幕 id 跳转并预设状态：`#act=ashore&mode=visitor&heart=bamboo&night=porridge&mood=longing`。幕 id：`night yixing return ashore`。v3 的 `#ep1`–`#ep3` 已废弃。

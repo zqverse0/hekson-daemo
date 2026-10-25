@@ -157,7 +157,7 @@ async function run({ cut, journey, mode }) {
 function tween(cut, ms, fn) {
   return new Promise(res => {
     const t0 = performance.now(), dur = cut.state.skip ? 1 : ms;
-    const stop = loop(t => { const k = Math.min(1, (t - t0) / dur); fn(easeOut(k)); if (k >= 1) { stop(); res(); } });
+    const stop = loop(t => { const k = Math.min(1, Math.max(0, (t - t0) / dur)); fn(easeOut(k)); if (k >= 1) { stop(); res(); } });
   });
 }
 
