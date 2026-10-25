@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>行舟入墨 · 苏轼 × 舣舟亭</title>
+<link rel="icon" href="data:,">
+</head>
+<body>
+
+<div id="stage">
+  <div id="sky"></div>
+  <div class="layer" id="L-far"></div>
+  <div class="layer" id="L-mid"></div>
+  <div class="layer" id="L-main"></div>
+  <div class="layer" id="L-fx"></div>
+  <div id="boat"></div>
+  <div class="layer" id="L-front"></div>
+  <div id="vignette"></div>
+</div>
+<div id="grain"></div>
+
+<header id="hud">
+  <div class="chapter">
+    <span class="seal-sm">古</span>
+    <div><b>行舟入墨</b><small>古代篇 · 墨染成景 · 苏轼 × 舣舟亭</small></div>
+  </div>
+  <ol id="progress">
+    <li><i></i><span>择居</span></li>
+    <li><i></i><span>北归</span></li>
+    <li><i></i><span>筑亭</span></li>
+  </ol>
+</header>
+
+<aside id="card" aria-live="polite">
+  <div class="seal" id="cardSeal">壹</div>
+  <h2 id="cardTitle"></h2>
+  <p id="cardText"></p>
+  <small id="cardNote"></small>
+</aside>
+
+<div id="hint" class="hide">按住画面向右拖动 <span class="arrow">→</span><small>或使用 → 键 / 滚轮 · 点击水面试试</small></div>
+<div id="foot">画面与演出为艺术化表现，非历史场景复原</div>
+
+<section id="cut" aria-live="polite">
+  <svg id="cutSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"></svg>
+  <div class="bar top"><span id="cutTitle"></span><button id="skipBtn">跳过 ››</button></div>
+  <div class="bar bot"><div id="gPrompt"><span class="mouse"></span><span id="gText"></span></div></div>
+  <svg id="gest"></svg>
+  <div id="dlg"><div class="who" id="dWho"></div><div class="line" id="dText"></div><div class="note" id="dNote"></div><div class="more">▼</div></div>
+</section>
+
+<div id="ink"><svg viewBox="0 0 600 600"><g filter="url(#fBlob)" fill="#1a1915">
+  <circle cx="300" cy="300" r="225"/>
+  <circle cx="520" cy="250" r="38"/><circle cx="90" cy="380" r="44"/><circle cx="350" cy="540" r="30"/>
+  <circle cx="200" cy="70" r="34"/><circle cx="470" cy="470" r="26"/><circle cx="120" cy="150" r="22"/>
+</g></svg></div>
+
+<section id="intro">
+  <div class="rod l"></div><div class="rod r"></div>
+  <div class="inner">
+    <div class="meta">古代篇 · <em>墨染成景</em><br>苏轼 × 舣舟亭</div>
+    <h1>行舟入墨</h1>
+    <button id="startBtn" aria-label="开始">展卷</button>
+  </div>
+</section>
+
+<section id="ending">
+  <div class="panel">
+    <div class="stamp">舣舟</div>
+    <p>一叶小舟靠岸的地方，<br>后人筑起了一座亭。</p>
+    <div class="got">收集 <b>墨迹 ×3</b> · 将在终章「纸上常州」中汇成文化广场</div>
+    <div class="btns">
+      <button id="againBtn">再泛一次</button>
+      <button class="primary" disabled title="样本中未包含">下一章 · 经纬织城 →</button>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -5,7 +5,23 @@ description: 《行舟入墨》的水墨视觉规范与可复用绘制函数清�
 
 # 水墨视觉规范
 
-参考实现：`prototypes/scene-01-sushi-v3.html`（只读）。下文函数在 M0 阶段抽取到 `src/core/`、`src/ink/`；抽取后从那里 import，不要重写，也不要再从原型里复制。
+下文函数已抽取到模块，直接 import，不要重写，也不要再从原型 `prototypes/scene-01-sushi-v3.html` 里复制：
+
+| 模块 | 内容 |
+|---|---|
+| `src/core/rng.js` | `rnd R reseed createRng` |
+| `src/core/math.js` | `clamp seg easeOut f1` |
+| `src/core/svg.js` | `el NS` |
+| `src/core/noise.js` | `noise1` |
+| `src/core/tick.js` | `tick` |
+| `src/core/input.js` | `primary`（只认主触点） |
+| `src/ink/palette.js` | 色板常量、`ink paper BRUSH` |
+| `src/ink/defs.js` | `mountDefs()`：全部滤镜与渐变 |
+| `src/ink/paths.js` | `smooth bez taper ellD ridge areaD` |
+| `src/ink/scenery.js` | `willow bridge gableHouse longHouse pine pavilion person bgScene` |
+| `src/ink/figures.js` | `defineFigures(gdefs)`、`BOAT` |
+| `src/ink/grain.js` | `mountGrain(el)` |
+| `src/stage/layers.js` | `createLayers(spec, W, H)` 视差图层 |
 
 ## 配色（只有这些）
 

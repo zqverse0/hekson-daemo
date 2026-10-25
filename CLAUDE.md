@@ -47,5 +47,7 @@
 - 剧情内按钮要在 `pointerdown` 上 `stopPropagation`，否则会同时推进对白。
 - 带位移的滤镜要放大 `x/y/width/height`，否则边缘被裁成直线；大范围遮罩滤镜用 `filterUnits="userSpaceOnUse"` 并给出区域（参考 `fBloom{i}`）。
 - 颜色只用 `ink-wash-style` 色板；黑灰一律 `ink(a)`，强调色只有朱 `#b03a2e`。不要引入新色相、emoji 或图标字体。
-- 字体按用字子集化后，**新增文字要重新跑子集化**，否则新字会回退成系统字体；`Ma Shan Zheng` 对繁体/生僻字的覆盖也要逐字检查。
+- 字体由 `@fontsource` 本地提供（按 unicode-range 分片，离线可用），不要改回 Google Fonts 外链。**`Ma Shan Zheng` 缺字**：已确认没有"饘"（《乞常州居住表》"粗给饘粥"），会回退成系统字体。用书法字体写生僻字前，用 `node_modules/@fontsource/ma-shan-zheng/unicode.json` 查覆盖；缺字的要单独处理（换字体或做成路径），不能改原文。
 - 架构是 Vite + 原生 JS，不引入 React/Vue；PixiJS 只有在千人场景原型证明 Canvas 2D 不够时才加。
+- 共享随机流 `rnd()` 的调用顺序决定画面：在已有景物**之前**插入新的 `rnd()` 调用，会让其后所有景物变样。新内容用 `createRng(seed)` 开独立的流。
+- `src/acts/v3/` 是原型移植，只作回归对照（`#v3=1..3` 跳转），新幕不要往里加代码，也不要从里面 import 剧情内容。

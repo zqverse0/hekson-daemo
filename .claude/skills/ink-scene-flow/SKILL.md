@@ -47,7 +47,7 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 
 不要新增"淡入淡出黑场"之类的通用转场。
 
-## 演出原语（v3 已实现，复用）
+## 演出原语（`src/cut/cut.js` 的 `createCut(inkDrop)`；转场 T2 在 `src/transitions/inkDrop.js`）
 
 | 原语 | 作用 | 要点 |
 |---|---|---|
