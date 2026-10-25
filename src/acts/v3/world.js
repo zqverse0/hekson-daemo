@@ -149,7 +149,8 @@ export function createWorld() {
       { c: el('circle', { cx: n.cx + R(-60, 60), cy: R(640, 720), r: 0, fill: '#fff' }, mg), max: R(140, 220), delay: -60 },
     ];
     const ghost = el('use', { href: '#art' + i, opacity: .075, filter: 'url(#fGhost)' }, M);
-    const live = el('g', { mask: `url(#mInk${i})` }, M);
+    // 未唤醒时完全看不见，但遮罩里的 fBloom 仍会在每次栅格化时计算，非常贵：揭开前不渲染
+    const live = el('g', { mask: `url(#mInk${i})`, style: 'display:none' }, M);
     const refl = el('g', { 'clip-path': 'url(#cWater)' }, live);
     el('use', { href: '#art' + i, transform: `translate(0,${2 * FAR}) scale(1,-1)`, opacity: .16, filter: 'url(#fRipple)' }, refl);
     el('use', { href: '#art' + i }, live);
@@ -190,10 +191,12 @@ export function createWorld() {
   /* 特效层：提示墨点、涟漪、跃鱼 */
   const FX = LAYERS.fx.svg;
   nodes.forEach((n, i) => {
-    n.marker = el('g', { class: 'marker', transform: `translate(${NODES[i].cx},360)` }, FX);
-    el('circle', { class: 'ring', cx: 0, cy: 0, r: 12, fill: 'none', stroke: SEAL, 'stroke-width': 2 }, n.marker);
-    el('circle', { class: 'ring r2', cx: 0, cy: 0, r: 12, fill: 'none', stroke: SEAL, 'stroke-width': 2 }, n.marker);
-    el('path', { class: 'dot', d: 'M0,-14 C6,-5 9,0 9,5 A9,9 0 1 1 -9,5 C-9,0 -6,-5 0,-14 Z', fill: ink(.9) }, n.marker);
+    // 提示墨点用 HTML 元素做，脉冲动画只在合成层上跑；放进 4400 宽的 SVG 会让整层每帧重绘
+    n.marker = document.createElement('div');
+    n.marker.className = 'marker';
+    n.marker.innerHTML = '<i class="ring"></i><i class="ring r2"></i>'
+      + `<svg class="dot" viewBox="-10 -15 20 30"><path d="M0,-14 C6,-5 9,0 9,5 A9,9 0 1 1 -9,5 C-9,0 -6,-5 0,-14 Z" fill="${ink(.9)}"/></svg>`;
+    LAYERS.fx.div.appendChild(n.marker);
   });
   const rippleG = el('g', { fill: 'none' }, FX);
   const ripples = [], fishes = [];
@@ -234,6 +237,8 @@ export function createWorld() {
     // 隐藏的面板里视口尺寸可能为 0，避免得到 0 / NaN
     scale = Math.max(innerHeight, 1) / H; VW = Math.max(innerWidth, 1) / scale;
     L.resize(scale);
+    nodes.forEach((n, i) => { n.marker.style.left = NODES[i].cx * scale + 'px'; n.marker.style.top = 360 * scale + 'px'; });
+    LAYERS.fx.div.style.setProperty('--k', scale);
     boatSvg.setAttribute('width', BOAT.W * scale); boatSvg.setAttribute('height', BOAT.H * scale);
   }
   addEventListener('resize', resize); resize();
@@ -242,6 +247,7 @@ export function createWorld() {
   function revealArt(i) {
     const n = nodes[i];
     const t0 = performance.now(), dur = 2100;
+    n.live.style.display = '';
     (function step(t) {
       const k = clamp((t - t0) / dur, 0, 1);
       for (const c of n.circles) c.c.setAttribute('r', f1(c.max * easeOut(clamp((t - t0 - c.delay) / dur, 0, 1))));
@@ -253,7 +259,7 @@ export function createWorld() {
   // 直接显示第 i 处景（调试跳转用）
   function showArt(i) {
     const n = nodes[i];
-    n.live.removeAttribute('mask'); n.ghost.remove(); n.marker.style.opacity = 0;
+    n.live.removeAttribute('mask'); n.live.style.display = ''; n.ghost.remove(); n.marker.style.opacity = 0;
   }
   function hideMarker(i) {
     const m = nodes[i].marker;

@@ -8,12 +8,12 @@ import { BOAT } from '../../ink/figures.js';
 // v3 原型的三段剧情。cut = createCut() 的返回值
 // 壹 · 买田阳羡（1084—1085）
 async function ep0({ shot, say, gesture }) {
-  const c = await shot(g => {
-    bgScene(g, { bank: 600, sun: [1250, 230, 58, .3] });
-    willow(g, 1180, 598, 240, .12);
-    willow(g, 1390, 600, 200, -.22);
-    el('path', { d: 'M-80,706 Q300,716 660,688 Q610,770 300,780 L-80,780 Z', fill: ink(.9) }, g);
-    el('path', { d: 'M-80,710 Q300,719 650,692', fill: 'none', stroke: paper(.3), 'stroke-width': 2 }, g);
+  const c = await shot((g, { bg }) => {
+    bgScene(bg, { bank: 600, sun: [1250, 230, 58, .3] });
+    willow(bg, 1180, 598, 240, .12);
+    willow(bg, 1390, 600, 200, -.22);
+    el('path', { d: 'M-80,706 Q300,716 660,688 Q610,770 300,780 L-80,780 Z', fill: ink(.9) }, bg);
+    el('path', { d: 'M-80,710 Q300,719 650,692', fill: 'none', stroke: paper(.3), 'stroke-width': 2 }, bg);
     el('use', { href: '#sym-sushi', x: 96, y: 88, width: 280, height: 630, class: 'breath' }, g);
     // 表文
     const sheet = el('g', { opacity: 0 }, g);
@@ -69,9 +69,9 @@ async function ep0({ shot, say, gesture }) {
 
 // 贰 · 夹岸相看（1101）
 async function ep1({ shot, say, gesture }) {
-  const c = await shot(g => {
-    bgScene(g, { bank: 430, near: 790, sun: [1300, 170, 40, .25] });
-    const town = el('g', { opacity: .45 }, g);
+  const c = await shot((g, { bg }) => {
+    bgScene(bg, { bank: 430, near: 790, sun: [1300, 170, 40, .25] });
+    const town = el('g', { opacity: .45 }, bg);
     [[120, 70, 40], [330, 90, 52], [620, 80, 44], [900, 100, 56], [1210, 76, 42], [1420, 92, 50]].forEach(([x, w, h], i) =>
       (i % 2 ? gableHouse : longHouse)(town, x, 418, w, h));
     const crowd = [el('g', { opacity: 0 }, g), el('g', { opacity: 0 }, g)];
@@ -98,13 +98,13 @@ async function ep1({ shot, say, gesture }) {
     if (k === 0) await say('旁白', '听说东坡回来了，岸边的人越聚越多……');
   }
   await say('旁白', '据宋人记载，那天运河两岸，“千万人随观之”。');
-  const d = await shot(g => {
-    bgScene(g, { bank: 520, sun: [1260, 200, 46, .22] });
-    const far = el('g', { filter: 'url(#fGhost)', opacity: .6 }, g);
+  const d = await shot((g, { bg, fg: front }) => {
+    bgScene(bg, { bank: 520, sun: [1260, 200, 46, .22] });
+    const far = el('g', { filter: 'url(#fGhost)', opacity: .6 }, bg);
     for (let x = 0; x < 1600; x += R(18, 30)) person(far, x, 524, R(42, 64), R(.35, .6), Math.floor(R(0, 3.99)));
-    el('path', { d: 'M-50,820 Q800,842 1650,800 L1650,910 L-50,910 Z', fill: ink(.9) }, g);
+    el('path', { d: 'M-50,820 Q800,842 1650,800 L1650,910 L-50,910 Z', fill: ink(.9) }, bg);
     const su = el('use', { href: '#sym-sushi', x: 540, y: 60, width: 444, height: 1000, class: 'breath' }, g);
-    const fg = el('g', { filter: 'url(#fDof)', opacity: .85 }, g);
+    const fg = el('g', { filter: 'url(#fDof)', opacity: .85 }, front);
     person(fg, 1230, 1000, 440, .9, 1);
     person(fg, 260, 1010, 400, .85, 0);
     return { su };
@@ -116,14 +116,14 @@ async function ep1({ shot, say, gesture }) {
 
 // 叁 · 舣舟筑亭
 async function ep2({ shot, say, gesture, sleep }) {
-  const c = await shot(g => {
-    bgScene(g, { bank: 640, warm: true, sun: [1210, 430, 92, .36] });
-    const bt = el('g', { transform: 'translate(150,618) scale(1.3)' }, g);
+  const c = await shot((g, { bg }) => {
+    bgScene(bg, { bank: 640, warm: true, sun: [1210, 430, 92, .36] });
+    const bt = el('g', { transform: 'translate(150,618) scale(1.3)' }, bg);
     el('path', { d: 'M6,80 Q130,93 254,73 Q228,106 130,106 Q38,106 6,80 Z', fill: ink(.88) }, bt);
     el('path', { d: 'M80,90 C82,50 156,50 160,89 Z', fill: ink(.78) }, bt);
-    el('path', { d: 'M480,724 Q560,700 640,660', fill: 'none', stroke: ink(.6), 'stroke-width': 1.6 }, g);
-    willow(g, 400, 642, 300, .15);
-    pine(g, 1330, 644, 330);
+    el('path', { d: 'M480,724 Q560,700 640,660', fill: 'none', stroke: ink(.6), 'stroke-width': 1.6 }, bg);
+    willow(bg, 400, 642, 300, .15);
+    pine(bg, 1330, 644, 330);
     const pg = el('g', { transform: 'translate(800,640) scale(1.45) translate(-800,-640)' }, g);
     const P = pavilion(pg, 800, 640);
     const stream = el('path', { d: 'M800,40 L800,41', stroke: ink(.8), 'stroke-width': 16, 'stroke-linecap': 'round', fill: 'none', filter: 'url(#fWash)', opacity: 0 }, g);

@@ -51,7 +51,7 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 
 | 原语 | 作用 | 要点 |
 |---|---|---|
-| `shot(build)` | 切镜头；`build(g)` 在 1600×900 的 `#cutSvg` 里画，返回上下文对象 | 首个镜头在墨色遮罩下搭好再揭开（`Cut.first`） |
+| `shot(build)` | 切镜头；`build(mid, { bg, fg })` 在 1600×900 坐标里画，返回上下文对象 | 三层分开：`bg` 静态背景、`mid` 演出中会变的内容、`fg` 静态前景。首个镜头在墨色遮罩下搭好再揭开 |
 | `say(who, text, note)` | 对白；`'旁白'` 隐藏人名 | 第一次点击补全文字，第二次推进 |
 | `gesture({dir, prompt, at, len, onProgress})` | 沿箭头划动，进度 0→1 驱动 `onProgress(p)` | 松手回弹；支持方向键、滚轮；`at/len` 是 cutSvg 坐标 |
 | `sleep(ms)` | 等待 | `Cut.skip` 时为 0 |

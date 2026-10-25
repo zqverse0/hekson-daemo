@@ -10,7 +10,7 @@ import { SEAL, ink } from '../ink/palette.js';
 // 新增原语（按住、拖放、选择、镜头推拉……）必须照此实现。
 export function createCut(inkDrop) {
   const $ = id => document.getElementById(id);
-  const cutEl = $('cut'), cutSvg = $('cutSvg'), gestSvg = $('gest');
+  const cutEl = $('cut'), shots = $('cutShots'), gestSvg = $('gest');
   const dlg = $('dlg'), dWho = $('dWho'), dText = $('dText'), dNote = $('dNote');
   const gPrompt = $('gPrompt'), gText = $('gText');
 
@@ -34,16 +34,24 @@ export function createCut(inkDrop) {
     state.skip = false;
   }
 
-  // 切换镜头：build(g) 在 1600×900 坐标里画，返回的对象交给剧情脚本操作
+  // 切换镜头：build(mid, { bg, fg }) 在 1600×900 坐标里画，返回的对象交给剧情脚本操作。
+  //   bg  静态背景（远山、岸、水、不动的树）——画完就不再改动
+  //   mid 动态中景（人物、会动的物件、手势驱动的部分）
+  //   fg  静态前景（压在最上面、不再改动的近景）
+  // 演出中只改 mid；改 bg / fg 会让带滤镜的背景整层重算
   async function shot(build) {
     const old = state.layer;
     if (old && !state.first) { old.style.transition = 'opacity .45s'; old.style.opacity = 0; await sleep(450); }
     if (old) old.remove();
-    const g = el('g', {}, cutSvg);
-    state.layer = g;
-    const ctx = build(g) || {};
+    const div = document.createElement('div');
+    div.className = 'shot';
+    const layer = cls => el('svg', { viewBox: '0 0 1600 900', preserveAspectRatio: 'xMidYMid slice', class: cls }, div);
+    const bg = layer('bg'), mid = layer('mid'), fg = layer('fg');
+    shots.appendChild(div);
+    state.layer = div;
+    const ctx = build(mid, { bg, fg }) || {};
     if (state.first) { state.first = false; await inkDrop.uncover(); }
-    else { g.style.opacity = 0; void g.getBoundingClientRect(); g.style.transition = 'opacity .6s'; g.style.opacity = 1; await sleep(550); }
+    else { div.style.opacity = 0; void div.offsetWidth; div.style.transition = 'opacity .6s'; div.style.opacity = 1; await sleep(550); }
     return ctx;
   }
 
@@ -70,14 +78,13 @@ export function createCut(inkDrop) {
     });
   }
 
+  // 镜头坐标（1600×900，xMidYMid slice）→ 屏幕坐标
   function toScreen(x, y) {
-    const m = cutSvg.getScreenCTM(), p = cutSvg.createSVGPoint();
-    p.x = x; p.y = y;
-    const r = p.matrixTransform(m);
-    return { x: r.x, y: r.y, k: m.a || 1 };
+    const k = Math.max(innerWidth / 1600, innerHeight / 900) || 1;
+    return { x: (innerWidth - 1600 * k) / 2 + x * k, y: (innerHeight - 900 * k) / 2 + y * k, k };
   }
 
-  // 沿箭头划动：划动进度 0→1 直接驱动 onProgress(p)。at / len 为 cutSvg 坐标
+  // 沿箭头划动：划动进度 0→1 直接驱动 onProgress(p)。at / len 为镜头坐标（1600×900）
   function gesture({ dir, prompt, at, len, onProgress }) {
     return new Promise(res => {
       const v = { down: [0, 1], up: [0, -1], right: [1, 0], left: [-1, 0] }[dir];
