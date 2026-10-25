@@ -21,8 +21,9 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | 7 | `epilogue` | 尾 · 舣舟 | 时光轮盘 → 漫游 → 画卷 | 轮盘自动，取消漫游 | — | 个人长卷 → 汇入众人长卷 |
 
 每幕模块导出 `{ id, title, seal, budget: { visitor, full }, run(ctx), scrollPiece(journey) }`，放在 `src/acts/NN-id/index.js`，画面函数放同目录 `scene.js`；写好后加入 `src/app.js` 的 `ACTS`。
-`ctx = { cut, journey, mode, fog }`。幕以 `cut.open(title, { bare: true })` 开场（`app.js` 负责）；以 T6 结尾的幕在最后 `await fog.cover('…')`，下一幕开头 `await fog.wipe(cut, …)`。
-参考实现：`src/acts/01-night/`（入画、按住、点选、二选一、支线镜头、重建镜头还原状态、诗成、钤印、印化为日、雾起）。
+`ctx = { cut, journey, mode, fog }`。幕以 `cut.open(title, { bare: true })` 开场（`app.js` 负责；画面以浅色纸面为主的幕在模块上加 `light: true`，标题改用墨色）；以 T6 结尾的幕在最后 `await fog.cover('…')`，下一幕开头 `await fog.wipe(cut, …)`。
+参考实现：`src/acts/01-night/`（入画、按住、点选、二选一、支线镜头、重建镜头还原状态、诗成、钤印、印化为日、雾起）；`src/acts/02-yixing/`（承接雾、字化为景、俯瞰图上推近拉远进出地点、每处地点一个 `sites/*.js` 模块 `{ id, name, play, item, draw(bg, mid, { final }), run(ctx) }`、游客版用 `drawAlbum` 把未玩的地点以册页带过、上表、表文飞出飞回）。
+直接从某幕开始调试时（`#act=yixing`），上一幕留下的雾不存在：承接 T6 的幕要先判断 `fog.covered`，没有就自己 `fog.cover()`。
 
 ## 运行模式与无操作计时
 
@@ -69,9 +70,10 @@ description: 《行舟入墨》的幕结构、转场语法、演出原语（shot
 | `choose` | `src/cut/taps.js` | 多选一，返回 id（支线分叉） | 数字键 |
 | `compose` | `src/cut/compose.js` | 三远构图：各层错位，拖回原位（入画） | Enter 逐层吸附 |
 | `fog.wipe` | `src/transitions/fog.js` | T6 拂雾：擦开雾气 | 按住空格 |
+| `rub` | `src/cut/rub.js` | 在框内来回擦，笔迹画进 `<mask>` 显出被遮的内容（临帖描摹、点茶击拂） | 按住空格 |
 | `say` / `gesture` | `src/cut/cut.js` | 对白、沿箭头划动 | 空格/回车、方向键 |
 
-辅助：`createPoem`（`src/ink/poem.js`，竖排诗句逐列写出）、`fog.cover(text)`（雾起，带一行字）、`loop(fn)`（`src/core/tick.js`，每帧回调，返回 stop）。
+辅助：`createPoem`（`src/ink/poem.js`，竖排诗句逐列写出）、`createSeal(parent, text)`（`src/ink/seal.js`，2–3 字竖长朱印）、`glyph`（`src/ink/glyph.js`，书法字体缺字拼合）、`fog.cover(text)`（雾起，带一行字）、`loop(fn)`（`src/core/tick.js`，每帧回调，返回 stop）。
 
 新增原语一律用 `src/cut/primitive.js` 的 `primitive(cut, prompt, api => …)` 外壳：监听用 `api.on`、定时器用 `api.every/after`、每帧循环用 `api.stopOnEnd(loop(…))`，返回"立即完成"函数。外壳负责跳过、自动完成、清理和收起对白，不要绕开它手写。新原语也要提供键盘替代操作。
 

@@ -21,6 +21,8 @@ description: 《行舟入墨》的水墨视觉规范与可复用绘制函数清�
 | `src/ink/scenery.js` | `willow bridge gableHouse longHouse pine pavilion person bgScene` |
 | `src/ink/figures.js` | `defineFigures(gdefs)`、`BOAT` |
 | `src/ink/grain.js` | `mountGrain(el)` |
+| `src/ink/poem.js` `seal.js` `glyph.js` | 竖排诗句、朱印、缺字拼合 |
+| `src/acts/02-yixing/scene.js` | `orangeTree bamboo ox catmull peaks linGrad radGrad`（橘树、竹、牛、平滑曲线、定位山峰、渐变）——其他幕要用就从这里 import，用到第三处时再挪进 `src/ink/` |
 | `src/stage/layers.js` | `createLayers(spec, W, H)` 视差图层 |
 
 ## 配色（只有这些）

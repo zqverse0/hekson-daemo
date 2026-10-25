@@ -104,6 +104,7 @@ export function createCut(inkDrop) {
 
   // 沿箭头划动：划动进度 0→1 直接驱动 onProgress(p)。at / len 为镜头坐标（1600×900）
   function gesture({ dir, prompt, at, len, onProgress }) {
+    hush();                         // 交互时不留上一句对白
     return new Promise(res => {
       const v = { down: [0, 1], up: [0, -1], right: [1, 0], left: [-1, 0] }[dir];
       const a = toScreen(at[0], at[1]), L = Math.max(80, len * a.k);

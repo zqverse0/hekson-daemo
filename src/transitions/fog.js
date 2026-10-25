@@ -82,5 +82,5 @@ export function createFog(root) {
     });
   }
 
-  return { cover, wipe, hide };
+  return { cover, wipe, hide, get covered() { return cv.style.display === 'block'; } };
 }

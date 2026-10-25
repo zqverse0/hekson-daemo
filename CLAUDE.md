@@ -44,6 +44,8 @@
   - 不要在大 SVG 内部的元素上做持续的 CSS 动画（脉冲、呼吸、浮动），会让整个 SVG 每帧重绘；做成独立的小 HTML 元素，只动 `transform`/`opacity`。
   - 不要对全屏元素用 `mix-blend-mode`。
   - 剧情镜头用 `shot((mid, { bg, fg }) => …)`：静态内容画进 `bg`/`fg`，演出中只改 `mid`。在 `bg` 里做动画会连带重算背景滤镜。
+  - 缩放整个镜头（推近、拉远）不要用 CSS `transition: transform`：浏览器会按动画最大倍数重新栅格化整屏，4K 下卡半秒以上。镜头 div 建好时就设 `will-change: transform`，再用 `loop()` 逐帧改 `transform`（参考 `src/acts/02-yixing/index.js` 的 `zoom`）。
+  - `compose` 入画结束后各层仍带 `translate3d`，每层都是独立合成层；之后要缩放整幅画，先把这些层的 `transform` 清空。
   - 测帧率的脚本思路：无头 Chrome 中用 rAF 统计帧间隔，逐项关闭效果做对比，再动手优化。
 - 讲解员快捷键（F1–F10、长按 Esc）不能被浏览器默认行为吃掉，要 `preventDefault`。
 
@@ -53,9 +55,12 @@
 - 动画循环用 `tick()`（rAF + setTimeout 兜底），不要直接用 `requestAnimationFrame`。
 - 新增演出原语必须：返回 Promise、设置 `Cut.cancel`、开头检查 `Cut.skip`、完成时移除全部监听器和定时器。
 - 剧情内按钮要在 `pointerdown` 上 `stopPropagation`，否则会同时推进对白。
+- `cut.say()` 结束后对白框仍留在画面上，直到下一个交互原语（`primitive()` 和 `gesture` 会自动收起）。说完话直接换镜头、拉远或进入下一幕前，先 `cut.hush()`。
+- 两个拖动类原语紧挨着时（如拂雾后接入画），中间 `await cut.sleep(…)` 留出间隔：玩家拂雾的余势会被下一个原语当成拖动，把画层甩出画面。
+- `layer()` 建的层是一整张 1600×900 的 `<svg>`，平移的是整张 svg，画在 viewBox 外的内容会被裁掉：要进出画面的物件画在 viewBox 内，靠整层 `translate` 移出去；比一屏高的立轴要按像素重设 svg 尺寸（参考 `sites/peak.js`）。
 - 带位移的滤镜要放大 `x/y/width/height`，否则边缘被裁成直线；大范围遮罩滤镜用 `filterUnits="userSpaceOnUse"` 并给出区域（参考 `fBloom{i}`）。
 - 颜色只用 `ink-wash-style` 色板；黑灰一律 `ink(a)`，强调色只有朱 `#b03a2e`。不要引入新色相、emoji 或图标字体。
-- 字体由 `@fontsource` 本地提供（按 unicode-range 分片，离线可用），不要改回 Google Fonts 外链。**`Ma Shan Zheng` 缺字**：已确认没有"饘"（《乞常州居住表》"粗给饘粥"），会回退成系统字体。用书法字体写生僻字前，用 `node_modules/@fontsource/ma-shan-zheng/unicode.json` 查覆盖；缺字的要单独处理（换字体或做成路径），不能改原文。
+- 字体由 `@fontsource` 本地提供（按 unicode-range 分片，离线可用），不要改回 Google Fonts 外链。**`Ma Shan Zheng` 缺字**：已确认没有"饘"（《乞常州居住表》"粗给饘粥"），会回退成系统字体。用书法字体写生僻字前，用 `node_modules/@fontsource/ma-shan-zheng/unicode.json` 查覆盖；缺字的用 `src/ink/glyph.js` 的 `glyph()` 写（"饘"已用"饣+亶"拼合，`createPoem` 已接入），新缺字加进它的 `PARTS` 表，不能改原文。
 - 架构是 Vite + 原生 JS，不引入 React/Vue；PixiJS 只有在千人场景原型证明 Canvas 2D 不够时才加。
 - 共享随机流 `rnd()` 的调用顺序决定画面：在已有景物**之前**插入新的 `rnd()` 调用，会让其后所有景物变样。新幕的每个镜头在 `build` 开头 `reseed(固定值)`，这样镜头与其他镜头互不影响，重建（如支线回来）时画面也完全一致。
 - `src/acts/v3/` 是原型移植，只作回归对照（`#v3=1..3` 跳转），新幕不要往里加代码，也不要从里面 import 剧情内容。

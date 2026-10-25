@@ -4,11 +4,12 @@ import { loop } from '../../core/tick.js';
 import { easeOut, f1 } from '../../core/math.js';
 import { paper, BRUSH, SEAL } from '../../ink/palette.js';
 import { createPoem } from '../../ink/poem.js';
+import { createSeal } from '../../ink/seal.js';
 import { hold } from '../../cut/hold.js';
 import { taps, choose } from '../../cut/taps.js';
 import { compose } from '../../cut/compose.js';
 import { LAMP, FIRES, STARS, SONG, CRY, SEAL_AT, SUN, DISHES, POEM,
-  drawSky, drawFar, drawRiver, drawBank, createMid, createSeal, drawSong, drawCry } from './scene.js';
+  drawSky, drawFar, drawRiver, drawBank, createMid, drawSong, drawCry } from './scene.js';
 
 // 第一幕 · 孤舟夜泊（熙宁六年除夕，常州城外）
 // 五拍：入画（平远）→ 护灯 · 点远火低星 · 行歌/野哭 → 诗成 → 钤印「残灯」→ 印化为日，雾起"十一年后"

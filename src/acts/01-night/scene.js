@@ -181,15 +181,6 @@ export function createMid(mid) {
   return { lamp, fire, star, blot, branchLight, palette };
 }
 
-// 印：未落下时悬浮，落下后成印痕。返回控制对象
-export function createSeal(mid, text) {
-  const g = el('g', { opacity: 0 }, mid);
-  const box = el('rect', { x: -30, y: -54, width: 60, height: 108, rx: 4, fill: SEAL }, g);
-  [...text].forEach((ch, i) => el('text', { x: 0, y: -12 + i * 46, 'text-anchor': 'middle', 'font-family': BRUSH, 'font-size': 38, fill: WALL, text: ch }, g));
-  const place = (x, y, s, rot, o) => { g.setAttribute('transform', `translate(${f1(x)},${f1(y)}) rotate(${f1(rot)}) scale(${f1(s)})`); g.setAttribute('opacity', f1(o)); };
-  return { g, box, place };
-}
-
 // 支线画面 · 行歌：城墙之后，守岁的人家
 export function drawSong(bg, mid) {
   reseed(731);
