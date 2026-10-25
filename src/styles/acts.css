@@ -2,6 +2,7 @@
 body.acts #stage, body.acts #hud, body.acts #card, body.acts #hint, body.acts #ending { display: none; }
 
 #cut.bare { background: #1c1b19; }
+#cut.bare.light { background: var(--paper); }     /* 浅色幕：换镜头、缩放时露出的底色也是纸色，不闪黑 */
 #cut.bare .bar { background: transparent; height: auto; min-height: 0; }
 #cut.bare .bar.top { top: max(1.6vh, env(safe-area-inset-top, 0px)); padding: 0 2.4vh; }
 #cut.bare .bar.bot { bottom: 3vh; }
